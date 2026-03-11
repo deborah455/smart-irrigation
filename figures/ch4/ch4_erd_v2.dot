@@ -1,0 +1,78 @@
+digraph ERDv2 {
+  rankdir=LR; splines=true; nodesep=0.6; ranksep=1.0;
+  fontname="Helvetica"; fontsize=11;
+
+  node [shape=record, fontname="Helvetica", fontsize=11];
+
+  Farmer [label="{Farmer|
+    id: PK\l
+    name: text\l
+    phone_hash: char(64) UNIQUE\l
+    created_at: timestamp\l
+  }"];
+
+  Plot [label="{Plot|
+    id: PK\l
+    farmer_id: FK(Farmer.id)\l
+    name: text\l
+    crop: text\l
+    region: text\l
+    lat: real\l
+    lon: real\l
+    created_at: timestamp\l
+  }"];
+
+  FactorsSnapshot [label="{FactorsSnapshot|
+    id: PK\l
+    plot_id: FK(Plot.id)\l
+    payload_json: json\l
+    device_id: text\l
+    created_at: timestamp\l
+  }"];
+
+  Recommendation [label="{Recommendation|
+    id: PK\l
+    snapshot_id: FK(FactorsSnapshot.id) UNIQUE\l
+    decision: text   # IRRIGATE|SKIP\l
+    amount_mm: real\l
+    amount_l: real\l
+    weather_json: json\l
+    model_version: text\l
+    created_at: timestamp\l
+  }"];
+
+  ModelVersion [label="{ModelVersion|
+    id: PK\l
+    name: text       # clf / reg\l
+    version: text    # e.g. v1.0.0\l
+    path: text       # artifact path\l
+    created_at: timestamp\l
+  }"];
+
+  # Optional future tables (kept dashed to show roadmap)
+  node [style=dashed];
+  Device [label="{Device (optional)|
+    id: PK\l
+    farmer_id: FK(Farmer.id)\l
+    kind: text  # sensor/gateway\l
+    notes: text\l
+    created_at: timestamp\l
+  }"];
+
+  WeatherSource [label="{WeatherSource (optional)|
+    id: PK\l
+    provider: text\l
+    api_key_ref: text\l
+    notes: text\l
+  }"];
+
+  # Relationships
+  node [style=solid];
+
+  Farmer -> Plot [label="1..N"];
+  Plot -> FactorsSnapshot [label="1..N"];
+  FactorsSnapshot -> Recommendation [label="1..1"];
+  ModelVersion -> Recommendation [style=dashed, label="provenance (optional)"];
+  Farmer -> Device [style=dashed, label="1..N"];
+  WeatherSource -> Recommendation [style=dashed, label="source tag (opt)"];
+}

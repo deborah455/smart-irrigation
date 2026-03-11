@@ -1,0 +1,42 @@
+digraph Modules {
+  rankdir=LR; splines=true; nodesep=0.7; ranksep=0.9;
+  node [shape=box, style="rounded,filled", fillcolor="white", fontname="Helvetica", fontsize=11];
+
+  subgraph cluster_ui {
+    label="UI Modules"; color="lightblue"; style="rounded";
+    ui1 [label="Onboarding\n(name/phone/lang)"];
+    ui2 [label="Plot Presets\n(save/load)"];
+    ui3 [label="Factor Renderer\n(core/optional by crop/region)"];
+    ui4 [label="Results & Tips\n(decision, mm, liters)"];
+    ui5 [label="Calculators\n(minutes, cost, zones, budget)"];
+    ui6 [label="Offline Fallback\n+ Share/Print/TTS"];
+  }
+
+  subgraph cluster_api {
+    label="API Modules"; color="lightgreen"; style="rounded";
+    a1 [label="Request Validator\n(pydantic)"];
+    a2 [label="Feature Encoder\n(normalize/encode)"];
+    a3 [label="Classifier Service\n(predict_proba)"];
+    a4 [label="Regressor Service\n(predict mm)"];
+    a5 [label="Response Composer\n(decision, mm, liters)"];
+  }
+
+  subgraph cluster_train {
+    label="Training Pipeline"; color="orange"; style="rounded";
+    t1 [label="Dataset-1 Builder\n(agro-weather)"];
+    t2 [label="Dataset-2 Builder\n(labels, crops, regions)"];
+    t3 [label="Training & Eval\n(metrics, plots)"];
+    t4 [label="Artifacts Persisted\n(joblib models)"];
+  }
+
+  ui3 -> a1 [label="payload"];
+  a1 -> a2 -> a3;
+  a2 -> a4;
+  a3 -> a5; a4 -> a5;
+  a5 -> ui4 [label="decision, mm, liters"];
+  ui4 -> ui5 [style=dashed, label="support tools"];
+
+  t1 -> t3 [style=dashed]; t2 -> t3 [style=dashed];
+  t3 -> t4 [style=dashed]; t4 -> a3 [style=dashed, label="load"];
+  t4 -> a4 [style=dashed, label="load"];
+}

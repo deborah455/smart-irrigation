@@ -1,0 +1,13 @@
+digraph Roadmap {
+  rankdir=LR; splines=ortho; nodesep=0.5; ranksep=0.8;
+  node [shape=rect, style="rounded,filled", fontname="Helvetica", fontsize=11, color="#6366f1", fillcolor="#eef2ff"];
+  edge [color="#9ca3af", penwidth=2, arrowsize=0.7];
+
+  n1 [label="M0–1:\nHardening\n(HTTPS, CORS,\nerror logging)"];
+  n2 [label="M1–2:\nUSSD/SMS flow\n(data entry + results)"];
+  n3 [label="M2–4:\nData expansion\n(more labels,\nper-region thresholds)"];
+  n4 [label="M3–5:\nIoT pairing\n(sensor QC, auto-fill)"];
+  n5 [label="M4–6:\nBackend scaling\n(PostgreSQL, Docker,\nCI/CD, roles)"];
+
+  n1 -> n2 -> n3 -> n4 -> n5;
+}

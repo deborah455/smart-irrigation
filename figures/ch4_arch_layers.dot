@@ -1,0 +1,42 @@
+digraph Arch {
+  rankdir=LR; splines=true; nodesep=0.7; ranksep=1.0;
+  fontname="Helvetica"; fontsize=11;
+  node [fontname="Helvetica", fontsize=11, style="rounded,filled"];
+
+  subgraph cluster_p {
+    label="Presentation Layer"; color="lightblue"; style="rounded";
+    p1 [label="Single-page UI\n(index.html)", shape=box, fillcolor="white"];
+    p2 [label="EN/SW Toggle\nAccessibility", shape=box, fillcolor="white"];
+    p3 [label="Dynamic Factors\n(core/optional)", shape=box, fillcolor="white"];
+    p4 [label="Calculators\n(minutes, cost, zones, budget)", shape=box, fillcolor="white"];
+    p5 [label="Offline Fallback\n+ Plot Save/Load", shape=box, fillcolor="white"];
+  }
+
+  subgraph cluster_a {
+    label="Application Layer"; color="lightgreen"; style="rounded";
+    a1 [label="FastAPI Service\n/health, /recommend/today", shape=box, fillcolor="white"];
+    a2 [label="Feature Encoder\n(validate & coerce)", shape=box, fillcolor="white"];
+    a3 [label="Decision Logic\n(thresholding, clamps)", shape=box, fillcolor="white"];
+  }
+
+  subgraph cluster_d {
+    label="Data / Model Layer"; color="orange"; style="rounded";
+    d1 [label="Dataset-1\n(agro-weather)", shape=box, fillcolor="white"];
+    d2 [label="Dataset-2\n(training labels)", shape=box, fillcolor="white"];
+    d3 [label="Classifier\n(irrigate/skip)", shape=box, fillcolor="white"];
+    d4 [label="Regressor\n(depth in mm)", shape=box, fillcolor="white"];
+    d5 [label="Artifacts & Metrics\n(joblib, figures)", shape=box, fillcolor="white"];
+  }
+
+  p1 -> a1 [label="POST factors"];
+  a1 -> a2 [label="payload"];
+  a2 -> d3 [label="features"];
+  a2 -> d4 [label="features"];
+  d3 -> a3 [label="probability"];
+  d4 -> a3 [label="mm"];
+  a3 -> p1 [label="decision, mm, liters"];
+
+  {rank=same; p1 p2 p3 p4 p5}
+  {rank=same; a1 a2 a3}
+  {rank=same; d1 d2 d3 d4 d5}
+}

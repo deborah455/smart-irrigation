@@ -1,0 +1,36 @@
+
+<!-- === Smart Irrigation: small runtime patch (badge + SMS) === -->
+<script>
+(function(){
+  // Run ping() periodically so the badge flips to Online when API is reachable
+  function safePing(){ if (typeof window.ping === "function") { try { window.ping(); } catch(e){} } }
+  window.addEventListener("DOMContentLoaded", function(){
+    // initial ping + schedule
+    safePing();
+    try { setInterval(safePing, 30000); } catch(e) {}
+
+    // Build SMS href using saved profile (phone) + existing buildSMS()
+    function updateSmsLink(){
+      var a = document.getElementById("smsShare");
+      if (!a) return;
+      var text = "";
+      try { text = (typeof window.buildSMS === "function") ? window.buildSMS() : ""; } catch(e) { text = ""; }
+      var prof = null;
+      try { prof = JSON.parse(localStorage.getItem("farmer_profile") || "null"); } catch(e) { prof = null; }
+      var to = (prof && prof.phone) ? String(prof.phone).replace(/\s+/g,'') : "";
+      a.href = to ? ("sms:" + to + "?&body=" + encodeURIComponent(text))
+                  : ("sms:?&body=" + encodeURIComponent(text));
+    }
+
+    // Update the SMS link now and whenever the factors form changes
+    updateSmsLink();
+    var form2 = document.getElementById("form2");
+    if (form2) form2.addEventListener("input", updateSmsLink);
+
+    // Also refresh link just before share click (covers last-second edits)
+    var smsA = document.getElementById("smsShare");
+    if (smsA) smsA.addEventListener("mousedown", updateSmsLink);
+  });
+})();
+</script>
+<!-- === end runtime patch === -->

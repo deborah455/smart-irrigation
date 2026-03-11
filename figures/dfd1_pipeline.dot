@@ -1,0 +1,28 @@
+digraph DFD1 {
+  graph [rankdir=LR, fontsize=12, fontname="Times-Roman"];
+  node  [shape=box, style="rounded,filled", fillcolor="#f1f8e9", fontname="Times-Roman"];
+  edge  [fontname="Times-Roman"];
+
+  Ingest [label="Ingestion & Validation\n(range checks, units)"];
+  Clean  [label="Cleaning & Imputation\n(winsorize, median)"];
+  FE     [label="Feature Engineering\n(Tmean, VPD proxy, rolling rain/evap, deficit)"];
+  Clf    [label="Classifier\n(irrigate?)"];
+  Reg    [label="Regressor\n(amount mm)"];
+  Rules  [label="Threshold & Safety\n(deep layer override, clamp 0..12)"];
+  Out    [shape=oval, style="filled", fillcolor="#fffde7",
+          label="Recommendation\n{need?, amount_mm, liters}"];
+
+  Ingest -> Clean -> FE -> Clf;
+  FE -> Reg;
+  Clf -> Rules;
+  Reg -> Rules;
+  Rules -> Out;
+
+  subgraph cluster_inputs {
+    label="Inputs"; fontname="Times-Roman"; style="rounded,dashed";
+    Farmer [shape=oval, label="Farmer factors"];
+    Weather [shape=oval, label="Weather (POWER/CSV/defaults)"];
+    Sns [shape=oval, label="Sensors"];
+  }
+  Farmer -> Ingest; Weather -> Ingest; Sns -> Ingest;
+}

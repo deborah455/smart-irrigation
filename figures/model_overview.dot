@@ -1,0 +1,22 @@
+digraph ModelOverview {
+  graph [rankdir=LR, fontsize=12, fontname="Times-Roman"];
+  node  [shape=box, style="rounded,filled", fontname="Times-Roman"];
+  edge  [fontname="Times-Roman"];
+
+  Inputs [fillcolor="#e8eaf6",
+    label="Inputs\n{soil_top, soil_deep, RH, wind, solar, rain,\nleaf_wet, flow, EC, days_since_last} + region"];
+  FE [fillcolor="#e8f5e9",
+    label="Feature Engineering\nTmean, diurnal range, VPD proxy,\nrolling rain/evap, deficit proxy"];
+  Clf [fillcolor="#fff3e0", label="Classifier (LR)\np = sigmoid(b0 + b^T x)"];
+  Th  [fillcolor="#fff3e0", label="Threshold τ_r\nregion-tuned"];
+  Reg [fillcolor="#fffde7", label="Regressor (RF)\namount_mm = avg_trees(x)"];
+  Safe[fillcolor="#fce4ec", label="Safety Rules\nif deep≥0.35 ⇒ skip\nclamp 0..12 mm"];
+  Out [shape=oval, fillcolor="#e1f5fe",
+       label="Output\n{need?, amount_mm, liters}"];
+
+  Inputs -> FE -> Clf -> Th;
+  Th -> Reg [label="if need=1"];
+  Reg -> Safe;
+  Th -> Safe [label="if need=0"];
+  Safe -> Out;
+}

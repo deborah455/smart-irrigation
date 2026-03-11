@@ -1,0 +1,18 @@
+digraph Preprocess {
+  graph [rankdir=TB, fontsize=12, fontname="Times-Roman"];
+  node  [shape=box, style="rounded", fontname="Times-Roman"];
+  edge  [fontname="Times-Roman"];
+
+  A [label="Start"];
+  B [label="Ingest POWER/sensor/farmer data"];
+  C [label="Validate & range checks\n(units: mm, m/s, MJ/m²)"];
+  D [label="Clean & clip outliers\n(winsorize, fix negatives)"];
+  E [label="Handle missing values\n(structural vs incidental)"];
+  F [label="Impute incidental missing\n(median in Pipeline)"];
+  G [label="Engineer features\n(Tmean, ΔT, VPD*, deficit*, rolling windows)"];
+  H [label="Split 75/25 stratified\n(train/test) + CV folds"];
+  I [label="Persist feature order & Pipeline"];
+  J [label="End"];
+
+  A->B->C->D->E->F->G->H->I->J;
+}

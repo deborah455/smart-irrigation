@@ -1,0 +1,15 @@
+digraph T {
+  rankdir=LR; splines=true; nodesep=0.6; ranksep=0.8;
+  node [shape=roundrect, style="rounded,filled", fontname="Helvetica", fontsize=11, color="#10b981", fillcolor="#ecfdf5"];
+  edge [color="#34d399", penwidth=2, arrowsize=0.7];
+
+  root [label="Testing & Verification", shape=hexagon, color="#059669", fillcolor="#d1fae5"];
+
+  u [label="Unit tests\n(feature encoding,\nranges, guards)"];
+  a [label="API tests\n(schema, latency,\nedge cases)"];
+  ui [label="UI/workflow\n(validation, dynamic\nfields, save/load)"];
+  perf [label="Performance\n(<300ms inference,\ntimeouts)"];
+  resil [label="Resilience\n(offline fallback,\nerror messages)"];
+
+  root -> u; root -> a; root -> ui; root -> perf; root -> resil;
+}

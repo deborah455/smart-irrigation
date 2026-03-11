@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Smart Irrigation — Simple UI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Tailwind via CDN (no build step) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* Background hero image */
+    body {
+      background: url('hero.jpg') center/cover no-repeat fixed;
+      min-height: 100vh;
+    }
+    /* Overlays to ensure text is readable on any photo */
+    .hero-overlay-1 { position: fixed; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.45), rgba(0,0,0,.6)); pointer-events:none; }
+    .hero-overlay-2 { position: fixed; inset: 0;
+      background:
+        radial-gradient(1000px 600px at 85% 10%, rgba(59,130,246,.28), transparent 60%),
+        radial-gradient(900px 550px at 5% 90%, rgba(16,185,129,.28), transparent 55%);
+      pointer-events:none;
+    }
+    /* Glass card */
+    .glass {
+      background: rgba(255,255,255,0.90);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(2,6,23,0.18);
+      border: 1px solid rgba(15,23,42,0.06);
+      border-radius: 1rem;
+    }
+    /* Soft gradient primary button */
+    .btn-primary {
+      padding: .6rem 1rem; border-radius: .65rem; color: white;
+      background: linear-gradient(135deg, #10b981 0%, #06b6d4 60%, #3b82f6 100%);
+      box-shadow: 0 6px 16px rgba(16,185,129,0.28);
+    }
+    .btn-primary:hover { filter: saturate(1.07) brightness(1.03); }
+    .btn-primary:disabled { opacity: .6; box-shadow: none; }
+    /* Subtle “sprinkler spray” accent */
+    .spray {
+      position: absolute; width: 220px; height: 100px; left: 3rem; bottom: 2rem;
+      background:
+        radial-gradient(60% 80% at 10% 90%, rgba(255,255,255,0.50), transparent 60%),
+        radial-gradient(50% 70% at 30% 90%, rgba(255,255,255,0.35), transparent 55%),
+        radial-gradient(55% 80% at 50% 90%, rgba(255,255,255,0.30), transparent 55%),
+        radial-gradient(45% 70% at 70% 90%, rgba(255,255,255,0.25), transparent 50%),
+        radial-gradient(50% 80% at 90% 90%, rgba(255,255,255,0.20), transparent 55%);
+      filter: blur(.6px); opacity: .7; transform-origin: bottom left;
+      animation: sprayUp 1.8s linear infinite;
+      pointer-events: none;
+    }
+    .spray.r { left: auto; right: 3rem; bottom: 3.4rem; animation-delay: .3s; }
+    @keyframes sprayUp {
+      0% { transform: scaleX(0.4) translateY(0); opacity: 0.75; }
+      60%{ transform: scaleX(1.05) translateY(-18px); opacity: 0.55; }
+      100%{transform: scaleX(1.15) translateY(-28px); opacity: 0.0; }
+    }
+  </style>
+</head>
+<body class="text-slate-900 relative">
+  <!-- Hero overlays -->
+  <div class="hero-overlay-1"></div>
+  <div class="hero-overlay-2"></div>
+
+  <!-- Page container -->
+  <div class="relative z-10 max-w-5xl mx-auto px-4 pt-6 pb-12">
+    <!-- Header pill -->
+    <div class="inline-flex items-center gap-2 rounded-full bg-white/85 px-3 py-1 text-xs shadow">
+      <span class="text-sky-600">💧</span> Smart Irrigation • Kenya
+    </div>
+
+    <!-- Title -->
+    <h1 class="mt-3 text-white text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight drop-shadow">
+      Precise irrigation, <span class="text-emerald-300">for every crop</span> and
+      <span class="text-sky-300"> every region</span>
+    </h1>
+    <p class="text-white/90 max-w-2xl mt-2">
+      Region-aware, crop-aware recommendations you can trust. Works even with low bandwidth
+      and minimal inputs from the farmer.
+    </p>
+
+    <!-- Decorative spray -->
+    <div class="spray hidden sm:block"></div>
+    <div class="spray r hidden md:block"></div>
+
+    <!-- Main glass card -->
+    <main class="glass mt-8 p-5 sm:p-6">
+      <form id="irrigationForm" class="grid gap-6">
+        <!-- Crop & Region -->
+        <section>
+          <h2 class="text-lg font-semibold text-slate-800 mb-3">1) Select Crop & Region</h2>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm mb-1 text-slate-700">Crop</label>
+              <select id="crop" class="w-full border rounded-lg p-2 bg-white"></select>
+            </div>
+            <div>
+              <label class="block text-sm mb-1 text-slate-700">Region</label>
+              <select id="region" class="w-full border rounded-lg p-2 bg-white">
+                <option value="asal">asal</option>
+                <option value="coastal">coastal</option>
+                <option value="highlands">highlands</option>
+                <option value="western">western</option>
+                <option value="rift">rift</option>
+              </select>
+              <p id="centroid" class="text-xs text-slate-600 mt-1"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Location -->
+        <section>
+          <h2 class="text-lg font-semibold text-slate-800 mb-3">2) Location (optional)</h2>
+          <label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" id="useManual" />
+            Enter latitude/longitude manually
+          </label>
+          <div id="manualBlock" class="grid sm:grid-cols-2 gap-4 mt-3 hidden">
+            <div>
+              <label class="block text-sm mb-1 text-slate-700">Latitude</label>
+              <input id="lat" type="number" step="0.0001" class="w-full border rounded-lg p-2" />
+            </div>
+            <div>
+              <label class="block text-sm mb-1 text-slate-700">Longitude</label>
+              <input id="lon" type="number" step="0.0001" class="w-full border rounded-lg p-2" />
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 mt-2">
+            If unchecked, backend should use a default centroid for the chosen region.
+          </p>
+        </section>
+
+        <!-- Factors -->
+        <section>
+          <h2 class="text-lg font-semibold text-slate-800 mb-3">
+            3) Factors <span id="fLabel" class="text-slate-600"></span>
+          </h2>
+          <div id="factors" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- Submit -->
+        <div class="flex items-center gap-3">
+          <button class="btn-primary" id="submitBtn" type="submit">Get Recommendation</button>
+          <span class="text-xs text-white/90">API: <code id="apiShow"></code></span>
+        </div>
+      </form>
+
+      <!-- Error -->
+      <div id="errBox" class="mt-4 hidden p-3 rounded-lg bg-red-50 border border-red-200 text-red-800"></div>
+
+      <!-- Results -->
+      <section id="results" class="grid md:grid-cols-3 gap-4 mt-4 hidden">
+        <div class="glass p-4">
+          <h3 class="font-semibold mb-1">Decision</h3>
+          <div id="resDecision" class="text-2xl">—</div>
+        </div>
+        <div class="glass p-4">
+          <h3 class="font-semibold mb-1">Amount (mm)</h3>
+          <div id="resMM" class="text-2xl">—</div>
+        </div>
+        <div class="glass p-4">
+          <h3 class="font-semibold mb-1">Liters</h3>
+          <div id="resLiters" class="text-2xl">—</div>
+        </div>
+
+        <div id="weatherBox" class="md:col-span-3 glass p-4 hidden">
+          <h4 class="font-semibold mb-2">Weather Snapshot</h4>
+          <div class="grid sm:grid-cols-3 gap-2 text-sm">
+            <div>Tmin: <span id="wTmin">—</span> °C</div>
+            <div>Tmax: <span id="wTmax">—</span> °C</div>
+            <div>RH: <span id="wRH">—</span> %</div>
+            <div>Wind: <span id="wWind">—</span> m/s</div>
+            <div>Solar: <span id="wSolar">—</span> MJ</div>
+            <div>Rain: <span id="wRain">—</span> mm</div>
+          </div>
+        </div>
+
+        <details id="debugBox" class="md:col-span-3 glass p-4 hidden">
+          <summary class="cursor-pointer font-semibold">Debug details</summary>
+          <pre id="debugText" class="text-xs mt-2 overflow-auto"></pre>
+        </details>
+      </section>
+    </main>
+
+    <footer class="text-xs text-white/80 mt-6 drop-shadow">
+      © <span id="year"></span> Smart Irrigation (Kenya) — Simple UI
+    </footer>
+  </div>
+
+  <script>
+    // ====== CONFIG ======
+    const API_BASE = "http://127.0.0.1:8000"; // change if your FastAPI runs elsewhere
+    document.addEventListener("DOMContentLoaded", () => document.getElementById("apiShow").textContent = API_BASE);
+
+    // ====== STATIC DICTS ======
+    const REGION_TOGGLES = {
+      asal:     { use_humidity: 0, use_wind: 0, use_leaf_wetness: 0 },
+      coastal:  { use_humidity: 1, use_wind: 0, use_leaf_wetness: 1 },
+      highlands:{ use_humidity: 1, use_wind: 0, use_leaf_wetness: 0 },
+      western:  { use_humidity: 1, use_wind: 0, use_leaf_wetness: 0 },
+      rift:     { use_humidity: 1, use_wind: 1, use_leaf_wetness: 0 },
+    };
+    const REGION_CENTROIDS = {
+      asal: { lat: -1.8, lon: 37.6 },
+      coastal: { lat: -4.0, lon: 39.7 },
+      highlands: { lat: -0.4, lon: 36.9 },
+      western: { lat: 0.3, lon: 34.8 },
+      rift: { lat: 0.1, lon: 35.3 },
+    };
+    const CROP_FEATURES = {
+      maize:{core:["soil_moisture_top"],optional:["flow_lpm","leaf_wetness","soil_ec"]},
+      beans:{core:["soil_moisture_top"],optional:["leaf_wetness","flow_lpm"]},
+      cowpea:{core:["soil_moisture_top"],optional:["soil_ec"]},
+      sorghum:{core:["soil_moisture_deep"],optional:["soil_ec"]},
+      millet:{core:["soil_moisture_top"],optional:[]},
+      wheat:{core:["soil_moisture_deep"],optional:[]},
+      barley:{core:["soil_moisture_deep"],optional:[]},
+      rice:{core:["flow_lpm"],optional:["soil_moisture_top"]},
+      potato:{core:["soil_moisture_top"],optional:["leaf_wetness","flow_lpm","soil_ec"]},
+      sweet_potato:{core:["soil_moisture_top"],optional:[]},
+      cassava:{core:["soil_moisture_deep"],optional:[]},
+      tomato:{core:["soil_moisture_top","leaf_wetness"],optional:["flow_lpm","soil_ec"]},
+      onion:{core:["soil_moisture_top","leaf_wetness"],optional:[]},
+      cabbage:{core:["soil_moisture_top","leaf_wetness"],optional:[]},
+      kale:{core:["soil_moisture_top","leaf_wetness"],optional:[]},
+      spinach:{core:["soil_moisture_top","leaf_wetness"],optional:[]},
+      capsicum:{core:["soil_moisture_top","leaf_wetness"],optional:[]},
+      banana:{core:["soil_moisture_deep"],optional:["flow_lpm"]},
+      coffee:{core:["soil_moisture_deep"],optional:[]},
+      tea:{core:["soil_moisture_top"],optional:[]},
+      sugarcane:{core:["soil_moisture_deep"],optional:[]},
+      pineapple:{core:["soil_moisture_top"],optional:[]},
+      mango:{core:["soil_moisture_deep"],optional:[]},
+      avocado:{core:["soil_moisture_deep"],optional:[]},
+      sunflower:{core:["soil_moisture_deep"],optional:[]},
+      groundnut:{core:["soil_moisture_top"],optional:[]},
+      cotton:{core:["soil_moisture_deep"],optional:[]},
+      watermelon:{core:["soil_moisture_top"],optional:["leaf_wetness"]},
+    };
+    const FARMER_FIELDS = {
+      soil_moisture_top:  { label:"Top soil moisture (0..1)", min:0, max:1, step:0.01, default:0.18 },
+      soil_moisture_deep: { label:"Deep soil moisture (0..1)", min:0, max:1, step:0.01, default:0.22 },
+      leaf_wetness:       { label:"Leaf wetness (0 or 1)",     min:0, max:1, step:1,    default:0 },
+      flow_lpm:           { label:"Irrigation flow yesterday (L/min)", min:0, max:10, step:0.1, default:0.1 },
+      soil_ec:            { label:"Soil EC / salinity (dS/m)",  min:0, max:5, step:0.1, default:0.6 },
+      days_since_last_irrig:{ label:"Days since last irrigation", min:0, max:30, step:1, default:1 },
+      area_m2:            { label:"Plot area (m²)",            min:10, max:100000, step:10, default:400 },
+    };
+
+    // ====== HELPERS ======
+    const $ = (id) => document.getElementById(id);
+    const fmt1 = (v) => (v==null||v===undefined) ? "—" : (Number.isFinite(Number(v)) ? Number(v).toFixed(1) : v);
+
+    function toAskFields(crop, region) {
+      const cfg = CROP_FEATURES[crop];
+      if (!cfg) return ["days_since_last_irrig","area_m2"];
+      const toggles = REGION_TOGGLES[region];
+      const core = [...cfg.core], opt = [...cfg.optional];
+      if (toggles.use_leaf_wetness === 0) {
+        const i1 = core.indexOf("leaf_wetness"); if (i1>=0) core.splice(i1,1);
+        const i2 = opt.indexOf("leaf_wetness");  if (i2>=0) opt.splice(i2,1);
+      }
+      return Array.from(new Set([...core, ...opt, "days_since_last_irrig", "area_m2"]));
+    }
+
+    function renderFactors(crop, region) {
+      const fields = toAskFields(crop, region);
+      $("fLabel").textContent = `for ${crop} in ${region}`;
+      const wrap = $("factors");
+      wrap.innerHTML = "";
+      for (const f of fields) {
+        const meta = FARMER_FIELDS[f];
+        if (!meta) continue;
+        const div = document.createElement("div");
+        div.className = "rounded-lg border bg-white p-3";
+        div.innerHTML = `
+          <label class="block text-sm mb-1">${meta.label}</label>
+          <input type="number" id="f_${f}" min="${meta.min}" max="${meta.max}" step="${meta.step}"
+                 class="w-full border rounded-lg p-2" value="${meta.default}">
+          <p class="text-[11px] text-slate-500 mt-1">Default: ${meta.default}</p>
+        `;
+        wrap.appendChild(div);
+      }
+    }
+
+    function currentPayload() {
+      const crop = $("crop").value;
+      const region = $("region").value;
+      const useManual = $("useManual").checked;
+      const lat = useManual ? ( $("lat").value === "" ? null : Number($("lat").value) ) : null;
+      const lon = useManual ? ( $("lon").value === "" ? null : Number($("lon").value) ) : null;
+      const fields = toAskFields(crop, region);
+      const factors = {};
+      for (const f of fields) {
+        const el = $("f_"+f);
+        factors[f] = el ? (el.value === "" ? null : Number(el.value)) : null;
+      }
+      return { crop, region, use_manual: useManual, lat, lon, factors };
+    }
+
+    async function callAPI(payload) {
+      const res = await fetch(`${API_BASE}/recommend/today`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const t = await res.text().catch(()=> "");
+        throw new Error(`API ${res.status}: ${t || res.statusText}`);
+      }
+      return res.json();
+    }
+
+    function showResults(data) {
+      $("results").classList.remove("hidden");
+      $("errBox").classList.add("hidden");
+      $("resDecision").textContent = data.decision ?? data.need ?? data.irrigate ?? "—";
+      $("resMM").textContent = (data.amount_mm ?? data.mm ?? 0).toFixed?.(2) ?? data.amount_mm ?? "—";
+      $("resLiters").textContent = (data.amount_l ?? data.liters ?? 0).toFixed?.(1) ?? data.amount_l ?? "—";
+
+      if (data.weather) {
+        $("weatherBox").classList.remove("hidden");
+        $("wTmin").textContent = fmt1(data.weather.t_min);
+        $("wTmax").textContent = fmt1(data.weather.t_max);
+        $("wRH").textContent   = fmt1(data.weather.rh);
+        $("wWind").textContent = fmt1(data.weather.wind_ms);
+        $("wSolar").textContent= fmt1(data.weather.solar_mj);
+        $("wRain").textContent = fmt1(data.weather.rain_mm);
+      } else {
+        $("weatherBox").classList.add("hidden");
+      }
+
+      if (data.debug) {
+        $("debugBox").classList.remove("hidden");
+        $("debugText").textContent = JSON.stringify(data.debug, null, 2);
+      } else {
+        $("debugBox").classList.add("hidden");
+      }
+    }
+
+    function showError(msg) {
+      $("results").classList.add("hidden");
+      const box = $("errBox");
+      box.textContent = msg;
+      box.classList.remove("hidden");
+    }
+
+    // ====== INIT ======
+    (function init() {
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      // crops list
+      const cropSel = $("crop");
+      const crops = Object.keys(CROP_FEATURES).sort();
+      for (const c of crops) {
+        const o = document.createElement("option");
+        o.value = c; o.textContent = c;
+        cropSel.appendChild(o);
+      }
+      cropSel.value = "maize";
+
+      const regionSel = $("region");
+      const setCentroid = () => {
+        const r = regionSel.value;
+        const c = REGION_CENTROIDS[r];
+        $("centroid").textContent = `Default centroid: (${c.lat.toFixed(2)}, ${c.lon.toFixed(2)})`;
+      };
+      setCentroid();
+
+      renderFactors(cropSel.value, regionSel.value);
+
+      cropSel.addEventListener("change", () => renderFactors(cropSel.value, regionSel.value));
+      regionSel.addEventListener("change", () => { setCentroid(); renderFactors(cropSel.value, regionSel.value); });
+
+      $("useManual").addEventListener("change", (e) => {
+        $("manualBlock").classList.toggle("hidden", !e.target.checked);
+      });
+
+      $("irrigationForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        $("submitBtn").disabled = true;
+        try {
+          const payload = currentPayload();
+          const data = await callAPI(payload);
+          showResults(data);
+        } catch (err) {
+          showError(err.message || String(err));
+        } finally {
+          $("submitBtn").disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

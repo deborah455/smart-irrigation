@@ -1,0 +1,30 @@
+digraph Deploy {
+  rankdir=LR; splines=true; nodesep=0.7; ranksep=1.0;
+  node [shape=box, style="rounded,filled", fillcolor="white", fontname="Helvetica", fontsize=11];
+
+  subgraph cluster_local {
+    label="Local Pilot (LAN)"; color="lightgrey"; style="rounded";
+    l1 [label="Farmer Phone\n(Browser)"];
+    l2 [label="Laptop / Mini PC\n(Static UI + FastAPI)"];
+    l3 [label="Models & CSV\n(joblib, datasets)"];
+    l1 -> l2 [label="HTTP/HTTPS (LAN)"];
+    l2 -> l3 [label="local FS"];
+  }
+
+  subgraph cluster_cloud {
+    label="Coop / Cloud"; color="lightgrey"; style="rounded";
+    c1 [label="Multiple Phones\n(Browsers)"];
+    c2 [label="Static Hosting\n(Nginx/S3)"];
+    c3 [label="FastAPI VM\n(Uvicorn)"];
+    c4 [label="Model Store\n(Artifacts)"];
+    c5 [label="Optional DB\n(PostgreSQL)"];
+    c1 -> c2 [label="HTTPS"];
+    c1 -> c3 [label="HTTPS"];
+    c2 -> c1 [style=dashed, label="UI assets"];
+    c3 -> c4 [label="load models"];
+    c3 -> c5 [label="recommendations / logs"];
+  }
+
+  gw [label="Internet / VPN", shape=ellipse, fillcolor="lightyellow"];
+  l2 -> gw -> c3 [label="HTTPS"];
+}

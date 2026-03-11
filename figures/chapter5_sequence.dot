@@ -1,0 +1,18 @@
+digraph G {
+  rankdir=LR; splines=true; nodesep=0.6; ranksep=0.8;
+  node [shape=roundrect, style="rounded,filled", fontname="Helvetica", fontsize=11, color="#3b82f6", fillcolor="#eef2ff"];
+  edge [color="#60a5fa", penwidth=2, arrowsize=0.7];
+
+  ui1 [label="UI Step 2:\nCrop, Region, Factors"];
+  api [label="FastAPI:\n/recommend/today"];
+  mlc [label="Classifier:\nIRRIGATE/SKIP"];
+  mlr [label="Regressor:\nDepth (mm)"];
+  ui2 [label="UI Step 3:\nDecision, mm → L,\nMinutes, Cost, Zones"];
+
+  ui1 -> api [label="POST payload"];
+  api -> mlc [label="features"];
+  api -> mlr [label="features"];
+  mlc -> api [label="prob/decision"];
+  mlr -> api [label="mm"];
+  api -> ui2 [label="decision, mm, L"];
+}

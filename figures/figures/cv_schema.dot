@@ -1,0 +1,12 @@
+digraph CVSchema {
+  graph [rankdir=TB, fontsize=12, fontname="Times-Roman", nodesep=0.3, ranksep=0.3];
+  node  [shape=box, style="rounded,filled", fillcolor="#eef7ff", fontname="Times-Roman"];
+  edge  [fontname="Times-Roman"];
+
+  Split [label="Train (75%)  |  Test (25%)"];
+  CV    [label="5-fold CV on Train\n(HParam search by PR-AUC / MAE)", fillcolor="#fff3e0"];
+  Best  [label="Best config → re-fit on all Train", fillcolor="#fff3e0"];
+  Eval  [label="Evaluate on held-out Test\nAUROC, PR-AUC, F1, MAE + CIs", fillcolor="#fce4ec"];
+
+  Split -> CV -> Best -> Eval;
+}

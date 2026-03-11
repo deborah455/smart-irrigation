@@ -1,0 +1,28 @@
+digraph ModelOverviewCompact {
+  graph [rankdir=TB, fontsize=12, fontname="Times-Roman", nodesep=0.35, ranksep=0.45];
+  node  [shape=box, style="rounded,filled", fontname="Times-Roman"];
+  edge  [fontname="Times-Roman"];
+
+  subgraph cluster_inputs {
+    label="Inputs"; style="rounded,dashed"; color="#cdd";
+    In1 [label="Soil moisture (top/deep)", fillcolor="#eef7ff"];
+    In2 [label="Weather (POWER/CSV/defaults)\nTmean, RH, wind, solar, rain", fillcolor="#eef7ff"];
+    In3 [label="Farmer factors\nleaf_wet, flow, EC, days_since", fillcolor="#eef7ff"];
+  }
+
+  FE   [label="Feature Engineering\nTmean, ΔT, VPD*, rolling rain/evap, deficit*", fillcolor="#e8f5e9"];
+
+  subgraph cluster_models {
+    label="Models"; style="rounded,dashed"; color="#cdd";
+    Clf  [label="Classifier (Logistic Regression)\np = σ(β₀ + βᵀx)", fillcolor="#fff3e0"];
+    Reg  [label="Regressor (Random Forest)\namount_mm = avg_trees(x)", fillcolor="#fff3e0"];
+  }
+
+  Thr  [label="Threshold τ_r (region-tuned)", fillcolor="#fff8e1"];
+  Safe [label="Safety Rules\nif deep≥0.35 ⇒ skip • clamp 0..12 mm", fillcolor="#fdebd0"];
+  Out  [shape=oval, label="Recommendation\n{need?, amount_mm, liters}", fillcolor="#e1f5fe"];
+
+  {In1; In2; In3} -> FE -> Clf -> Thr -> Safe -> Out;
+  Thr -> Reg [label="if need=1"];
+  Reg -> Safe;
+}

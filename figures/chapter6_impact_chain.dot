@@ -1,0 +1,71 @@
+digraph G {
+  rankdir=LR; splines=true; pad=0.2; nodesep=0.6; ranksep=0.8;
+
+  node [shape=roundrect, style="filled,rounded", fontname="Helvetica", fontsize=11, color="#0ea5e9", fillcolor="#ecfeff"];
+  edge [color="#60a5fa", penwidth=2, arrowsize=0.7];
+
+  subgraph cluster_inputs {
+    label="Inputs"; labelloc="t"; fontsize=12; fontname="Helvetica-Bold";
+    style="rounded,dashed"; color="#10b981";
+    i1 [label="Dataset-1\n(agro-weather >3k rows)"];
+    i2 [label="Dataset-2\n(training >3k samples,\n25+ crops, regions)"];
+    i3 [label="Farmer-entered factors\n(soil moisture, ET₀, rain, area, etc.)"];
+    i4 [label="Optional sensors\n(soil EC/pH, wind, RH, rain)"];
+  }
+
+  subgraph cluster_processing {
+    label="Processing (Backend / ML)"; labelloc="t"; fontsize=12; fontname="Helvetica-Bold";
+    style="rounded,dashed"; color="#3b82f6";
+    p1 [label="Preprocessing\n(clean/encode/scale)"];
+    p2 [label="Classifier\n(IRRIGATE / SKIP)"];
+    p3 [label="Regressor\n(Amount in mm)"];
+  }
+
+  subgraph cluster_outputs {
+    label="Outputs (UI)"; labelloc="t"; fontsize=12; fontname="Helvetica-Bold";
+    style="rounded,dashed"; color="#6366f1";
+    o1 [label="Decision card\nIRRIGATE / SKIP"];
+    o2 [label="Depth (mm) → Liters\narea-aware conversion"];
+    o3 [label="Tools: drip minutes,\ncost (KES), zones, budget"];
+    o4 [label="Share: SMS/WhatsApp,\nprint, TTS; offline fallback"];
+  }
+
+  subgraph cluster_outcomes {
+    label="Farmer Outcomes"; labelloc="t"; fontsize=12; fontname="Helvetica-Bold";
+    style="rounded,dashed"; color="#f59e0b";
+    u1 [label="Water saved"];
+    u2 [label="Cost savings"];
+    u3 [label="Yield stability"];
+    u4 [label="Time saved"];
+  }
+
+  subgraph cluster_reco {
+    label="Recommendations (Next Steps)"; labelloc="t"; fontsize=12; fontname="Helvetica-Bold";
+    style="rounded,dashed"; color="#ef4444";
+    r1 [label="USSD/SMS end-to-end"];
+    r2 [label="More labels &\nperiodic re-calibration"];
+    r3 [label="IoT pairing &\nquality checks"];
+    r4 [label="PostgreSQL + roles\n(privacy, audit)"];
+    r5 [label="Docker + CI/CD\n(deploy/scale)"];
+  }
+
+  {rank=same; i1 i2 i3 i4}
+  {rank=same; p1 p2 p3}
+  {rank=same; o1 o2 o3 o4}
+  {rank=same; u1 u2 u3 u4}
+
+  i1 -> p1; i2 -> p1; i3 -> p1; i4 -> p1;
+  p1 -> p2; p1 -> p3;
+  p2 -> o1; p3 -> o2;
+  o1 -> o3; o2 -> o3; o3 -> o4;
+
+  o4 -> u1 [style=solid];
+  o4 -> u2 [style=solid];
+  o4 -> u3 [style=solid];
+  o4 -> u4 [style=solid];
+
+  u1 -> r2 [style=dashed, color="#f97316"];
+  u2 -> r4 [style=dashed, color="#f97316"];
+  u3 -> r3 [style=dashed, color="#f97316"];
+  u4 -> r1 [style=dashed, color="#f97316"];
+}

@@ -1,0 +1,21 @@
+digraph ResearchDesign {
+  graph [rankdir=TB, fontsize=12, fontname="Times-Roman", nodesep=0.35, ranksep=0.45];
+  node  [shape=box, style="rounded,filled", fontname="Times-Roman", fillcolor="#eef7ff"];
+  edge  [fontname="Times-Roman"];
+
+  D1 [label="Dataset-1:\nWeather & Context\n(POWER → t_min/t_max, RH, wind,\nsolar, rain + t_mean, ΔT, VPD*)"];
+  D2 [label="Dataset-2:\nPlot-Day Recommendation\n(crop×region, soil moisture,\nrolling rain/evap, labels)"];
+
+  Join [label="Join by date/region → plot-day rows", fillcolor="#e8f5e9"];
+  Prep [label="Pre-processing\nvalidate • clean • impute • engineer", fillcolor="#e8f5e9"];
+  Split [label="Split 75/25 (stratified by 'irrigate')", fillcolor="#fff8e1"];
+
+  CV   [label="5-fold CV + Hyper-parameter Search\nClassifier: PR-AUC/AUROC • Regressor: MAE", fillcolor="#fff3e0"];
+  Best [label="Select best config\nre-fit on full train", fillcolor="#fff3e0"];
+  Cal  [label="Calibration (Platt/Isotonic)\ncheck reliability/Brier", fillcolor="#fdebd0"];
+  Thr  [label="Threshold tuning τ_r (per region)\nPrecision–Recall–F1 sweep", fillcolor="#fdebd0"];
+  Test [label="Final Test Evaluation\nAUROC • PR-AUC • F1 • MAE • CIs", fillcolor="#fce4ec"];
+  Art  [label="Artifacts\n• joblib models\n• exact pipeline steps\n• PNG figures\n• thresholds τ_r", fillcolor="#e1f5fe", shape=box];
+
+  D1 -> Join; D2 -> Join; Join -> Prep -> Split -> CV -> Best -> Cal -> Thr -> Test -> Art;
+}

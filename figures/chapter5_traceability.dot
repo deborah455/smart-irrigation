@@ -1,0 +1,39 @@
+digraph RTM {
+  rankdir=LR;
+  node [shape=plaintext, fontname="Helvetica", fontsize=10];
+
+  matrix [label=<
+<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+  <TR>
+    <TD BGCOLOR="lightgrey"><B>ID</B></TD>
+    <TD BGCOLOR="lightgrey"><B>Requirement</B></TD>
+    <TD BGCOLOR="lightgrey"><B>Implemented In</B></TD>
+    <TD BGCOLOR="lightgrey"><B>Test(s)</B></TD>
+  </TR>
+  <TR>
+    <TD>FR-03</TD><TD>Save/Load plots</TD>
+    <TD>index.html (localStorage)</TD><TD>UI T-10 (save/load)</TD>
+  </TR>
+  <TR>
+    <TD>FR-05</TD><TD>Dynamic core/optional factors</TD>
+    <TD>index.html (renderFactors)</TD><TD>UI T-03 (toggle)</TD>
+  </TR>
+  <TR>
+    <TD>FR-07</TD><TD>/recommend/today endpoint</TD>
+    <TD>app.py (FastAPI)</TD><TD>API test, curl, Postman</TD>
+  </TR>
+  <TR>
+    <TD>FR-11</TD><TD>Cost calculator</TD>
+    <TD>index.html (Calculators)</TD><TD>Calc checks (hand math)</TD>
+  </TR>
+  <TR>
+    <TD>NFR-Perf</TD><TD>&lt;300 ms inference</TD>
+    <TD>app.py &amp; models</TD><TD>Latency micro-bench</TD>
+  </TR>
+  <TR>
+    <TD>NFR-Res</TD><TD>Offline fallback</TD>
+    <TD>index.html (demoFallback)</TD><TD>UI offline test</TD>
+  </TR>
+</TABLE>
+>];
+}

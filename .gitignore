@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+
+# Training artifacts (optional if huge)
+dataset*.csv
+
+# Python env
+.env
+
+amount_reg.joblib

@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+
+/* Spray animation + glass cards */
+.spray {
+  position: absolute; width: 200px; height: 90px;
+  background:
+    radial-gradient(60% 80% at 10% 90%, rgba(255,255,255,0.50), transparent 60%),
+    radial-gradient(50% 70% at 30% 90%, rgba(255,255,255,0.35), transparent 55%),
+    radial-gradient(55% 80% at 50% 90%, rgba(255,255,255,0.30), transparent 55%),
+    radial-gradient(45% 70% at 70% 90%, rgba(255,255,255,0.25), transparent 50%),
+    radial-gradient(50% 80% at 90% 90%, rgba(255,255,255,0.20), transparent 55%);
+  filter: blur(0.5px); opacity: 0.7; transform-origin: bottom left;
+  animation: sprayUp 1.8s linear infinite;
+}
+.spray.delay-300 { animation-delay: .3s; }
+@keyframes sprayUp {
+  0% { transform: scaleX(0.4) translateY(0); opacity: 0.75; }
+  60%{ transform: scaleX(1.05) translateY(-18px); opacity: 0.55; }
+  100%{transform: scaleX(1.15) translateY(-28px); opacity: 0.0; }
+}
+.glass {
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(2,6,23,0.12), 0 1px 0 rgba(255,255,255,0.6) inset;
+  border: 1px solid rgba(15,23,42,0.06);
+  border-radius: 1rem;
+}
+.btn-primary {
+  padding: .5rem 1rem; border-radius: .5rem; color: white;
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 60%, #3b82f6 100%);
+  box-shadow: 0 6px 16px rgba(16,185,129,0.28);
+}
+.btn-primary:hover { filter: saturate(1.1) brightness(1.03); }
+.btn-primary:disabled { opacity: .6; box-shadow: none; }

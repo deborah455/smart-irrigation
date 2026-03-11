@@ -1,0 +1,16 @@
+digraph DFD0 {
+  graph [rankdir=LR, fontsize=12, fontname="Times-Roman"];
+  node  [fontname="Times-Roman"];
+  edge  [fontname="Times-Roman"];
+
+  Farmer   [shape=oval, label="Farmer\n(crop, region, factors)"];
+  Sensors  [shape=oval, label="IoT Sensors\n(soil moisture, EC, leaf wetness)"];
+  POWER    [shape=oval, label="NASA POWER\n(weather API)"];
+  System   [shape=box, style="rounded,filled", fillcolor="#e3f2fd",
+            label="Smart Irrigation System"];
+
+  Farmer  -> System [label="inputs"];
+  Sensors -> System [label="sensor readings"];
+  POWER   -> System [label="weather"];
+  System  -> Farmer [label="recommendation: need?/amount"];
+}
